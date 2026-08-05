@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UPSC Daily Current Affairs Digest - Automation Suite</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo-group">
+        <div class="logo-icon">🏛️</div>
+        <div>
+          <h1 class="logo-title">UPSC Daily Digest</h1>
+          <div class="logo-subtitle">Automated Current Affairs & Telegram Bot</div>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+        <button class="tab-btn" onclick="switchTab('telegram')">📱 Telegram Preview</button>
+        <button class="tab-btn" onclick="switchTab('sources')">📡 RSS Feeds</button>
+        <button class="tab-btn" onclick="switchTab('history')">📜 History Logs</button>
+        <!-- <button class="tab-btn" onclick="switchTab('settings')">⚙️ Config</button> -->
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="main-container">
+
+    <!-- Top KPI Stats -->
+    <div class="grid-stats">
+      <div class="stat-card">
+        <div>
+          <div class="stat-lbl">RSS Sources</div>
+          <div class="stat-val" id="stat-sources">6 Active</div>
+        </div>
+        <div class="stat-icon">📰</div>
+      </div>
+
+      <div class="stat-card">
+        <div>
+          <div class="stat-lbl">Scheduled Cron</div>
+          <div class="stat-val" id="stat-cron" style="font-size: 1.2rem;">07:00 AM IST</div>
+        </div>
+        <div class="stat-icon">⏰</div>
+      </div>
+
+      <div class="stat-card">
+        <div>
+          <div class="stat-lbl">Telegram Status</div>
+          <div class="stat-val" id="stat-telegram" style="font-size: 1.2rem; color: var(--accent-emerald);">Connected</div>
+        </div>
+        <div class="stat-icon">✈️</div>
+      </div>
+
+      <div class="stat-card">
+        <div>
+          <div class="stat-lbl">AI Summarizer</div>
+          <div class="stat-val" id="stat-ai" style="font-size: 1.2rem; color: var(--accent-blue);">OpenRouter<br>(GPT-OSS-20B)</div>
+        </div>
+        <div class="stat-icon">🤖</div>
+      </div>
+    </div>
+
+    <!-- TAB 1: DASHBOARD & WORKFLOW RUNNER -->
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="section-box">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">⚡ Workflow Control Center</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">
+              Manually trigger the full pipeline: RSS Fetch ➜ Deduplicate ➜ AI Summarization & UPSC Tagging ➜ Telegram Delivery ➜ Google Sheets Sync
+            </p>
+          </div>
+          <button class="btn" id="btn-trigger" onclick="triggerWorkflow()">
+            <span>🚀 Run Workflow Now</span>
+          </button>
+        </div>
+        <!-- visual pipeline -->
+        <div id="workflow-progress" class="workflow-progress" style="display:none;">
+          <div class="workflow-step" id="step-rss">
+            <span class="step-icon">📰</span>
+            <span class="step-text">Fetch RSS Feeds</span>
+            <span class="step-status waiting">Waiting</span>
+          </div>
+          <div class="workflow-arrow">↓</div>
+          <div class="workflow-step" id="step-dedupe">
+            <span class="step-icon">🧹</span>
+            <span class="step-text">Deduplicate Articles</span>
+            <span class="step-status waiting">Waiting</span>
+          </div>
+          <div class="workflow-arrow">↓</div>
+          <div class="workflow-step" id="step-ai">
+            <span class="step-icon">🤖</span>
+            <span class="step-text">AI Summarization</span>
+            <span class="step-status waiting">Waiting</span>
+          </div>
+          <div class="workflow-arrow">↓</div>
+          <div class="workflow-step" id="step-telegram">
+            <span class="step-icon">📨</span>
+            <span class="step-text">Telegram Delivery</span>
+            <span class="step-status waiting">Waiting</span>
+          </div>
+          <div class="workflow-arrow">↓</div>
+          <div class="workflow-step" id="step-sheet">
+            <span class="step-icon">📊</span>
+            <span class="step-text">Google Sheets Log</span>
+            <span class="step-status waiting">Waiting</span>
+          </div>
+        </div>
+
+        <!-- Terminal Console Log Output -->
+        <div id="console-output" style="display: none; background: #090d16; border: 1px solid var(--border-color); border-radius: 12px; padding: 1.2rem; font-family: 'Fira Code', monospace; font-size: 0.85rem; color: #38bdf8; max-height: 250px; overflow-y: auto; margin-bottom: 1.5rem;">
+          <div id="console-logs">> Ready to execute workflow...</div>
+        </div>
+
+        <div id="latest-summary-box">
+          <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: #fff;">Latest Digest Articles Processed</h3>
+          <div id="articles-container" class="feed-grid">
+            <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem 0;">
+              Click <b>"Run Workflow Now"</b> to execute the end-to-end AI workflow and generate today's UPSC Current Affairs Digest.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: TELEGRAM PREVIEW -->
+    <div id="tab-telegram" class="tab-content">
+      <div class="section-box">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">📱 Telegram Channel Digest Preview</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">
+              Articles are formatted in Telegram HTML & automatically split into parts to respect Telegram's 4096 character limit.
+            </p>
+          </div>
+          <div id="tg-parts-nav" style="display: flex; gap: 0.5rem;">
+            <!-- Message parts buttons will render here -->
+          </div>
+        </div>
+
+        <div class="telegram-preview-box">
+          <div class="tg-header">
+            <div class="tg-avatar">UPSC</div>
+            <div>
+              <div style="font-weight: 600; font-size: 0.95rem;">UPSC Daily Current Affairs</div>
+              <div style="font-size: 0.75rem; color: #7f91a4;">channel subscriber digest</div>
+            </div>
+          </div>
+          <div class="tg-bubble" id="tg-bubble-content">
+            Loading preview...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: RSS SOURCES -->
+    <div id="tab-sources" class="tab-content">
+      <div class="section-box">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">📡 RSS News Feed Sources</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">
+              Manage news sources filtered for UPSC CSE Prelims & Mains.
+            </p>
+          </div>
+        </div>
+
+        <div class="feed-grid" id="sources-list-grid">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: HISTORY LOGS -->
+    <div id="tab-history" class="tab-content">
+      <div class="section-box">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">📜 Google Sheets & Local Logs</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">
+              All processed items logged with UPSC Syllabus topic, GS Paper, Context, and Mains Keywords.
+            </p>
+          </div>
+        </div>
+
+        <table class="table-custom">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Article Title</th>
+              <th>Source</th>
+              <th>Syllabus Topic</th>
+              <th>GS Paper</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body">
+            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No history records yet. Run the workflow to record logs!</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 5: CONFIG SETTINGS
+    <div id="tab-settings" class="tab-content">
+      <div class="section-box">
+        <h2 class="section-title" style="margin-bottom: 1rem;">⚙️ System Configuration & Credentials</h2>
+        
+        <form id="config-form" onsubmit="saveConfig(event)">
+          <div class="form-group">
+            <label class="form-label">Telegram Bot Token</label>
+            <input type="text" id="cfg-telegram-token" class="form-control" placeholder="1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ">
+            <small style="color: var(--text-muted); font-size: 0.75rem;">Obtain from @BotFather on Telegram</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Telegram Chat ID / Channel Username</label>
+            <input type="text" id="cfg-telegram-chat" class="form-control" placeholder="@my_upsc_digest_channel or -100123456789">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Google Gemini API Key</label>
+            <input type="password" id="cfg-gemini-key" class="form-control" placeholder="AIzaSy...">
+            <small style="color: var(--text-muted); font-size: 0.75rem;">Get a free API key at <a href="https://aistudio.google.com/" target="_blank" style="color: var(--accent-blue);">aistudio.google.com</a></small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Google Sheet ID (Optional for Google Sheets Sync)</label>
+            <input type="text" id="cfg-sheet-id" class="form-control" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Daily Cron Schedule (5-field syntax)</label>
+            <input type="text" id="cfg-cron-schedule" class="form-control" value="0 7 * * *">
+            <small style="color: var(--text-muted); font-size: 0.75rem;">Default: '0 7 * * *' (Every day at 7:00 AM)</small>
+          </div>
+
+          <button type="submit" class="btn">💾 Save Settings</button>
+        </form>
+      </div>
+    </div>-->
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
