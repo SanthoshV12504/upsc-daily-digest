@@ -36,10 +36,10 @@ function heuristicCategorization(title, snippet) {
 }
 
 /**
- * Call OpenRouter REST API or use fallback rule engine
+ * Call Mistral REST API or use fallback rule engine
  */
 export async function summarizeArticleWithAI(article) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.MISTRAL_API_KEY;
 
   // Fallback if no API key set
   if (!apiKey || apiKey === 'your_openrouter_api_key_here') {
@@ -148,16 +148,14 @@ Return ONLY valid JSON.
 
 for (let attempt = 1; attempt <= 2; attempt++) {
 
-  res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  res = await fetch("https://api.mistral.ai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "http://localhost:3000",
-      "X-Title": "UPSC Daily Digest"
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: "openai/gpt-oss-20b:free",
+      model: "mistral-small-latest",
       response_format: {
         type: "json_object"
       },
@@ -180,12 +178,12 @@ for (let attempt = 1; attempt <= 2; attempt++) {
   }
 
   if (res.status === 429 && attempt < 2) {
-    console.log("⏳ Rate limited. Waiting 25 seconds before retry...");
+    console.log("⏳Mistral Rate limited. Waiting 25 seconds before retry...");
     await new Promise(resolve => setTimeout(resolve, 25000));
     continue;
   }
 
-  throw new Error(`OpenRouter API error ${res.status}: ${await res.text()}`);
+  throw new Error(`Mistral API error ${res.status}: ${await res.text()}`);
 }
     const data = await res.json();
     const rawText = data.choices?.[0]?.message?.content;
@@ -208,7 +206,7 @@ for (let attempt = 1; attempt <= 2; attempt++) {
       aiGenerated: true
     };
   } catch (err) {
-    console.warn(`[AI Warning] OpenRouter API call failed for "${article.title}": ${err.message}. Using fallback.`);
+    console.warn(`[AI Warning] Mistral API call failed for "${article.title}": ${err.message}. Using fallback.`);
     const heur = heuristicCategorization(article.title, article.snippet);
     return {
       topic: heur.topic,
