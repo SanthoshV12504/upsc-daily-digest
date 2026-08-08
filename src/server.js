@@ -70,28 +70,47 @@ app.get('/api/status', (req, res) => {
 });
 
 // 2. Trigger workflow manually
-app.post('/api/trigger', async (req, res) => {
+app.post('/api/trigger', (req, res) => {
   if (isRunning) {
-    return res.status(400).json({ error: 'Workflow is already running' });
+    return res.status(400).json({
+      error: 'Workflow is already running'
+    });
   }
 
   isRunning = true;
-  const hours = req.body.hours || 48; // default to 48 hours for test trigger to get rich data
 
-  try {
-    const result = await runWorkflow({
-      sources: activeSources,
-      hoursLookback: hours,
-      telegramBotToken: req.body.telegramBotToken,
-      telegramChatId: req.body.telegramChatId
+  const hours = req.body.hours || 48;
+
+  // Start workflow in background
+  runWorkflow({
+    sources: activeSources,
+    hoursLookback: hours,
+    telegramBotToken: req.body.telegramBotToken,
+    telegramChatId: req.body.telegramChatId
+  })
+    .then((result) => {
+      lastRunResult = result;
+      isRunning = false;
+
+      console.log('✅ Workflow completed successfully');
+    })
+    .catch((err) => {
+      isRunning = false;
+
+      console.error('❌ Workflow failed:', err);
+
+      lastRunResult = {
+        success: false,
+        error: err.message
+      };
     });
-    lastRunResult = result;
-    isRunning = false;
-    res.json(result);
-  } catch (err) {
-    isRunning = false;
-    res.status(500).json({ error: err.message });
-  }
+
+  // Respond immediately
+  res.status(202).json({
+    success: true,
+    message: 'Workflow started successfully',
+    status: 'running'
+  });
 });
 
 // 3. Get RSS sources
