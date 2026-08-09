@@ -205,41 +205,78 @@ function setupCronSchedule(scheduleStr = process.env.CRON_SCHEDULE || '0 7 * * *
 // =====================================================
 
 // Get today's digest
-app.get("/api/digest/today", (req, res) => {
-  res.json(getTodayArticles());
+app.get("/api/digest/today", async (req, res) => {
+  try {
+    const articles = await getTodayArticles();
+    res.json(articles);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
-
 // Get Top 5 articles
-app.get("/api/digest/top5", (req, res) => {
-  res.json(getTopArticles(5));
+app.get("/api/digest/top5", async (req, res) => {
+  try {
+    const articles = await getTopArticles(5);
+    res.json(articles);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Get all articles
-app.get("/api/digest", (req, res) => {
-  const { topic, paper } = req.query;
+app.get("/api/digest", async (req, res) => {
+  try {
 
-  if (topic) {
-    return res.json(getArticlesByTopic(topic));
+    const { topic, paper } = req.query;
+
+    if (topic) {
+      const articles = await getArticlesByTopic(topic);
+      return res.json(articles);
+    }
+
+    if (paper) {
+      const articles = await getArticlesByPaper(paper);
+      return res.json(articles);
+    }
+
+    const articles = await getAllArticles();
+
+    res.json(articles);
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: err.message
+    });
   }
-
-  if (paper) {
-    return res.json(getArticlesByPaper(paper));
-  }
-
-  res.json(getAllArticles());
 });
 
 // Search
-app.get("/api/digest/search", (req, res) => {
-  const q = req.query.q;
+app.get("/api/digest/search", async (req, res) => {
+  try {
 
-  if (!q) {
-    return res.status(400).json({
-      error: "Search keyword is required"
+    const q = req.query.q;
+
+    if (!q) {
+      return res.status(400).json({
+        error: "Search keyword is required"
+      });
+    }
+
+    const articles = await searchArticles(q);
+
+    res.json(articles);
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: err.message
     });
   }
-
-  res.json(searchArticles(q));
 });
 
 export function startServer(port = process.env.PORT || 3000) {
