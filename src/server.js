@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import cron from 'node-cron';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -19,6 +20,13 @@ import {
 dotenv.config();
 
 const app = express();
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
 app.use(express.json());
 app.use(express.static(path.resolve(process.cwd(), 'public')));
 
