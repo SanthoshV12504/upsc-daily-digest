@@ -16,6 +16,7 @@ import {
   getArticlesByPaper,
   searchArticles
 } from "./services/digestService.js";
+import { generateMentorResponse } from './services/mentorService.js';
 
 dotenv.config();
 
@@ -275,6 +276,51 @@ app.get("/api/digest/search", async (req, res) => {
 
     res.status(500).json({
       error: err.message
+    });
+  }
+});
+
+// =====================================================
+// AI MENTOR - GROQ
+// =====================================================
+
+app.post("/api/mentor", async (req, res) => {
+  try {
+    const { question, context } = req.body;
+
+    if (!question) {
+      return res.status(400).json({
+        success: false,
+        error: "Question is required"
+      });
+    }
+
+    if (!context) {
+      return res.status(400).json({
+        success: false,
+        error: "Mentor context is required"
+      });
+    }
+
+    console.log("🤖 AI Mentor question:", question);
+    console.log("📚 Mentor context received");
+
+    const answer = await generateMentorResponse(
+      question,
+      context
+    );
+
+    res.json({
+      success: true,
+      answer
+    });
+
+  } catch (error) {
+    console.error("❌ AI Mentor error:", error);
+
+    res.status(500).json({
+      success: false,
+      error: error.message || "AI Mentor request failed"
     });
   }
 });
