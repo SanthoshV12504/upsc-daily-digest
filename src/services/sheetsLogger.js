@@ -32,6 +32,8 @@ export async function logArticlesToSheet(runId, articles, telegramStatus) {
     gsPaper: art.summary?.gsPaper || 'GS Paper 2',
     context: art.summary?.context || '',
     mainsKeyword: art.summary?.mainsKeyword || '',
+    keyHighlights: art.summary?.keyPoints?.join(' | ') || '',
+    practiceQuestion: art.summary?.practiceQuestion || '',
     url: art.link,
     telegramDelivered: telegramStatus?.success ? (telegramStatus.simulated ? 'Simulated' : 'Sent') : 'Failed'
   }));
