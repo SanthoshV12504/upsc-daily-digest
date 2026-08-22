@@ -23,10 +23,12 @@ dotenv.config();
 const app = express();
 app.use(cors({
   origin: [
+    'https://upsc-smart-mentor-frontend.vercel.app',
     'http://localhost:3000',
     'http://localhost:5173'
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
 }));
 app.use(express.json());
 app.use(express.static(path.resolve(process.cwd(), 'public')));
